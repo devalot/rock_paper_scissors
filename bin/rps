@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+################################################################################
+require('optparse')
+
+################################################################################
+$:.unshift(File.expand_path('../lib', File.dirname(__FILE__)))
+require('rock_paper_scissors')
+
+################################################################################
+class Game
+
+  ##############################################################################
+  def initialize
+    @mode = :player_vs_player
+    @rand = Random.new
+
+    OptionParser.new do |parser|
+      parser.on('-h', '--help', 'This message') do
+        $stdout.puts(parser)
+        exit
+      end
+
+      parser.on('--double', 'Double player mode (default)') do
+        @mode = :player_vs_player
+      end
+
+      parser.on('--single', 'Single player mode') do
+        @mode = :player_vs_computer
+      end
+
+      parser.on('--computers', 'Computer vs. Computer') do
+        @mode = :computer_vs_computer
+      end
+    end.parse(ARGV)
+  end
+
+  ##############################################################################
+  def play
+    send(@mode)
+  end
+
+  ##############################################################################
+  private
+
+  ##############################################################################
+  def player_vs_player
+    p1 = get_player_move(1)
+    p2 = get_player_move(2)
+    play_game_with_moves(p1, p2)
+  end
+
+  ##############################################################################
+  def player_vs_computer
+    p1 = get_player_move(1)
+    p2 = get_computer_move
+    play_game_with_moves(p1, p2)
+  end
+
+  ##############################################################################
+  def computer_vs_computer
+    p1 = get_computer_move
+    p2 = get_computer_move
+    play_game_with_moves(p1, p2)
+  end
+
+  ##############################################################################
+  def get_player_move (player)
+    possible_moves = RockPaperScissors::WINS.keys
+
+    loop do
+      $stdout.write("Player #{player} move: ")
+      answer = $stdin.gets.chomp
+      break answer if possible_moves.include?(answer)
+
+      $stdout.puts("ERROR: invalid move!")
+      $stdout.puts("Please play one of: #{possible_moves.join(' ')}")
+    end
+  end
+
+  ##############################################################################
+  def get_computer_move
+    possible_moves = RockPaperScissors::WINS.keys
+    possible_moves[@rand.rand(possible_moves.size)]
+  end
+
+  ##############################################################################
+  def play_game_with_moves (p1, p2)
+    $stdout.print("Game: #{p1} against #{p2}, ")
+    winner = RockPaperScissors.new.play(p1, p2)
+
+    if winner == "tie"
+      $stdout.puts("it's a tie!")
+    else
+      $stdout.puts("#{winner} wins!")
+    end
+  end
+end
+
+################################################################################
+Game.new.play
