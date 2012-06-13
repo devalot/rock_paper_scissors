@@ -12,8 +12,9 @@ class Game
 
   ##############################################################################
   def initialize
-    @mode = :player_vs_player
-    @rand = Random.new
+    @mode  = :player_vs_player
+    @count = 1
+    @rand  = Random.new
 
     OptionParser.new do |parser|
       parser.on('-h', '--help', 'This message') do
@@ -32,12 +33,18 @@ class Game
       parser.on('--computers', 'Computer vs. Computer') do
         @mode = :computer_vs_computer
       end
+
+      parser.on('--times=COUNT', 'Number of times to play') do |times|
+        @count = times.to_i
+      end
     end.parse(ARGV)
   end
 
   ##############################################################################
   def play
-    send(@mode)
+    @count.times do
+      send(@mode)
+    end
   end
 
   ##############################################################################
